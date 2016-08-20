@@ -87,7 +87,7 @@ public class CharVLA implements RandomAccess, Cloneable, java.io.Serializable, L
      *
      * @param a an array or vararg whose elements will be used to fill the array list.
      */
-    private CharVLA(final char... a) {
+    public CharVLA(final char... a) {
         this(a, 0, a.length);
     }
 
@@ -213,7 +213,7 @@ public class CharVLA implements RandomAccess, Cloneable, java.io.Serializable, L
         return a[index];
     }
 
-    private int indexOf(final char k) {
+    public int indexOf(final char k) {
         for (int i = 0; i < size; i++)
             if (((k) == (a[i]))) return i;
         return -1;
