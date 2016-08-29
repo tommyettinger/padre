@@ -225,7 +225,7 @@ public class CharVLA implements RandomAccess, Cloneable, java.io.Serializable, L
         return -1;
     }
 
-    private char removeChar(final int index) {
+    protected char removeChar(final int index) {
         if (index >= size)
             throw new IndexOutOfBoundsException("Index (" + index + ") is greater than or equal to list size (" + size + ")");
         final char old = a[index];
