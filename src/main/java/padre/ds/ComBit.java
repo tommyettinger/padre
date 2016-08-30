@@ -255,6 +255,23 @@ public class ComBit extends CharVLA {
         packing.cardinality = card;
         return packing;
     }
+
+    public static ComBit variadicUnion(ComBit... parts)
+    {
+        int pLen;
+        if(parts == null || (pLen = parts.length) <= 0)
+            return none();
+        if(pLen == 1)
+            return new ComBit(parts[0]);
+        if(pLen == 2)
+            return union(parts[0], parts[1]);
+        ComBit working = union(parts[0], parts[1]);
+        for (int i = 2; i < pLen; i++) {
+            working = union(working, parts[i]);
+        }
+        return working;
+    }
+
     public static ComBit intersection(ComBit left, ComBit right)
     {
         if(left.cardinality == 0 || right.cardinality == 0)
@@ -351,9 +368,38 @@ public class ComBit extends CharVLA {
         return packing;
     }
 
+    public static ComBit variadicIntersection(ComBit... parts)
+    {
+        int pLen;
+        if(parts == null || (pLen = parts.length) <= 0)
+            return none();
+        if(pLen == 1)
+            return new ComBit(parts[0]);
+        if(pLen == 2)
+            return intersection(parts[0], parts[1]);
+        ComBit working = intersection(parts[0], parts[1]);
+        for (int i = 2; i < pLen; i++) {
+            working = intersection(working, parts[i]);
+        }
+        return working;
+    }
     public ComBit copy()
     {
         return new ComBit(this);
+    }
+
+    public static ComBit all()
+    {
+        ComBit cb = new ComBit(1);
+        cb.windowStart--;
+        cb.add(0);
+        cb.cardinality = 0x10000;
+        return cb;
+    }
+
+    public static ComBit none()
+    {
+        return new ComBit(1);
     }
 
     @Override
