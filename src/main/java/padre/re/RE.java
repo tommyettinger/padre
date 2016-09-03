@@ -510,7 +510,6 @@ public interface RE {
                 working = ComBit.union(working, regs[i].sigma());
             }
             return working;
-
         }
 
         /**
@@ -801,6 +800,110 @@ public interface RE {
                 }
             }
             return fin;
+        }
+    }
+
+
+    class Star implements RE
+    {
+        public final RE re;
+        public final boolean greedy;
+        private Star()
+        {
+            re = soloAny;
+            greedy = true;
+        }
+        public Star(boolean greedy, RE re){
+            this.re = re;
+            this.greedy = greedy;
+        }
+        /**
+         * Gets the set of all chars (in the Unicode BMP) that this can match, as a compressed bitset (ComBit).
+         *
+         * @return the compressed bitset representing all chars this can match
+         */
+        @Override
+        public ComBit sigma() {
+            if(re == null)
+                return noBits;
+            return re.sigma();
+        }
+
+        /**
+         * True if this will consume further input, false if it is satisfied after consuming one char.
+         *
+         * @return true if this is greedy, false if it is not
+         */
+        @Override
+        public boolean isGreedy() {
+            return greedy;
+        }
+
+        /**
+         * True iff the RE is Phi or is a different RE that can be treated as equivalent to Phi because its rules
+         * prevent anything from matching.
+         *
+         * @return true if the RE cannot match anything, false otherwise.
+         */
+        @Override
+        public boolean isPhi() {
+            return false;
+        }
+
+        /**
+         * False if the RE can potentially be unable to match the empty string, true otherwise. isEpsilon is in
+         * general more restrictive than posEpsilon, and will only return true for a Choice if that Choice is
+         * between two REs that both can match the empty string, and similarly for Star, where it only returns true
+         * if the RE repeated by Star can itself match the empty string.
+         *
+         * @return false if the RE can potentially be unable to match the empty string, true otherwise
+         */
+        @Override
+        public boolean isEpsilon() {
+            if(re == null || re.isPhi())
+                return true;
+            return re.isEpsilon();
+        }
+
+        /**
+         * Very similar to isEpsilon except in how it handles choice and some Kleene star operations. posEpsilon is
+         * in general less restrictive than isEpsilon, returning true for more Choice and Star REs.
+         *
+         * @return true if the RE can match the empty string, false if it won't match an empty string
+         */
+        @Override
+        public boolean posEpsilon() {
+            return true;
+        }
+
+        /**
+         * Finds unnecessary sections of an RE that slow down processing and cleans them up where possible.
+         *
+         * @return a new RE that should be equivalent to this in behavior but no more complex
+         */
+        @Override
+        public RE simplify() {
+            if(re == null)
+                return soloPhi;
+            return new Star(greedy, re.simplify());
+        }
+
+        /**
+         * Finds the set of RE values that can follow this RE when it is given the char l.
+         *
+         * @param c the char that should be checked to see what can follow it
+         * @return the Set of RE values that can follow this combination of RE and char
+         */
+        @Override
+        public GenericSet<RE> partialDerive(char c) {
+            if(re == null)
+                return nilMatch;
+            GenericSet<RE> res = re.partialDerive(c), t = new GenericSet<RE>(res.size);
+            for (RE r : res)
+            {
+                t.add(new Sequence(r, this));
+            }
+            return t;
         }
     }
 
