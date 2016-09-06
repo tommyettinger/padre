@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import static padre.ds.MathUtils.nextPowerOfTwo;
+
 /** An unordered set where the keys are objects. This implementation uses cuckoo hashing using 3 hashes, random walking, and a
  * small stash for problematic keys. Null keys are not allowed. No allocation is done except when growing the table size. <br>
  * <br>
@@ -19,7 +21,7 @@ public class GenericSet<T> implements Iterable<T> {
 
     public int size;
 
-    private long random = 31;
+    private long random = 31L;
 
     T[] keyTable;
     int capacity, stashSize;
@@ -175,7 +177,7 @@ public class GenericSet<T> implements Iterable<T> {
         int i = 0, pushIterations = this.pushIterations;
         do {
             // Replace the key and value for one of the hashes.
-            switch ((int)((3 * (((random ^ ((random += 0x9E3779B97F4A7C15L) >> 18)) * 0xC6BC279692B5CC83L) & 0x7FFFFFFFL)) >>> 31)) {
+            switch (MathUtils.nextInt(random += 0x9E3779B97F4A7C15L, 3)) {
                 case 0:
                     evictedKey = key1;
                     keyTable[index1] = insertKey;
@@ -420,12 +422,6 @@ public class GenericSet<T> implements Iterable<T> {
             buffer.append(key);
         }
         return buffer.toString();
-    }
-
-    private static int nextPowerOfTwo(int n)
-    {
-        int highest = Integer.highestOneBit(n);
-        return  (highest == Integer.lowestOneBit(n)) ? highest : highest << 1;
     }
 
 
